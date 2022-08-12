@@ -1,0 +1,3 @@
+Project for CS50 course
+
+AIM: This is an anonymous mood board! Every day users get to rate their day from 1 to 10, as well as provide a few words to describe the reason why. This provides data to be interpreted and gives the user feedback on not only how they view their own feelings but it also gives some comparative analysis with other users and seasonal changes. It will also show motivational quotes.
