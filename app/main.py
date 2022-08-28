@@ -16,7 +16,7 @@ def create_app(testing: bool = True):
     # configure session to use filesystem (instead of signed cookies)
     app.config["TEMPLATES_AUTO_RELOAD"] = True
     app.config["SESSION_PERMANENT"] = False
-    app.config["SECRET_KEY"] = secrets.token_hex(16)
+    app.config["SESSION_TYPE"] = "filesystem"
     Session(app)
 
     # Testing database to be used before production database
@@ -45,6 +45,7 @@ def create_app(testing: bool = True):
     @app.route("/all_moods")
     @login_required
     def all_moods():
+        #  TODO Provide statistics on user compared to others and add to the render template
         return render_template("all_moods.html")
 
     
@@ -82,9 +83,39 @@ def create_app(testing: bool = True):
 
     @app.route("/register", methods=["GET", "POST"])
     def register():
+        illegal_chars = "()=*-\\\'\".;:/\{\}#"
+        """Register user"""
+        # If user registers VIA POST
         if request.method == "POST":
-            pass
-        return render_template("register.html")
+            username, password, confirmation = request.form.get(
+                "username"), request.form.get("password"), request.form.get("confirmation")
+             # Only allow certain characters for username, sanitize user input
+            for i in illegal_chars:
+                for c in username:
+                    if i == c:
+                        return apology(f"These Characters are not allowed! {illegal_chars}")
+            # Check if the password matches and if the user exits.
+            if password == confirmation:
+                user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
 
+                # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric character
+                if len(password) < 8 and len(re.findall("\W+", password)) < 4:
+                    return apology("Password must contain at least 8 characters and 1 nonalphanumeric character!")
+
+                if len(user_exists) == 0:
+                    # TODO had a new path for the user's image value, include all values in database.
+                    db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, generate_password_hash(password))
+                    return redirect("/login")
+
+                else:
+                    return apology("User already exists!")
+
+            else:
+                return apology("Passwords do not match!")
+
+        else:
+            return render_template("register.html")
+            
     
     return app
+

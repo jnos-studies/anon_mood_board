@@ -1,6 +1,6 @@
-.logins {
-    background-color: white;
-    color: blue;
+.emotive {
+    outline: none;
+    color: rgb(219, 219, 217);
     -webkit-transition: color 1s;
     -moz-transition:    color 1s;
     -ms-transition:     color 1s;
@@ -13,7 +13,23 @@
     transition:         background-color 1s;
 }
 
-.logins:hover {
-    color: white;
-    background-color: blue;
+.emotive:hover {
+    outline: none;
+    color: rgb(43, 43, 42);
+    background-color: rgb(247, 235, 171);
+}
+
+.nav {
+    background-color: rgb(57, 59, 87);
+    color: rgb(219, 219, 217);
+}
+
+.btn-primary {
+    border: none;
+    background-color: rgb(57, 59, 87);
+    color: rgb(219, 219, 217);
+}
+.btn-primary:hover {
+    color: rgb(43, 43, 42);
+    background-color: rgb(247, 235, 171);
 }

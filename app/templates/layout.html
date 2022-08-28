@@ -16,18 +16,18 @@
 
         <link href="/static/styles.css" rel="stylesheet">
 
-        <title>Mood Tracker: {% block title %}{% endblock %}</title>
+        <title>Anon Mood-board: {% block title %}{% endblock %}</title>
     </head>
     <body>
-        <nav class="nav nav-pills nav-justified">
+        <nav class="nav">
             {%if session["user_id"]%}
-                <a class="nav-link active" aria-current="page" href="/index">Home</a>
-                <a class="nav-link" href="/log_mood">Log your mood!</a>
-                <a class="nav-link" href="/all_moods">All the feels!</a>
-                <a class="nav-link" href="/logout">logout</a>
+                <a class="flex-sm-fill text-sm-center nav-link active emotive" aria-current="page" href="/index">Home</a>
+                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/log_mood">Log your mood!</a>
+                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/all_moods">All the feels!</a>
+                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/logout">logout</a>
             {% else %}
-                <a class="flex-sm-fill text-sm-center nav-link logins" aria-current="page" href="/login">login</a>
-                <a class="flex-sm-fill text-sm-center nav-link logins" href="/register">register</a>
+                <a class="flex-sm-fill text-sm-center nav-link emotive" aria-current="page" href="/login">login</a>
+                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/register">register</a>
             {%endif%}
             </nav>
 
