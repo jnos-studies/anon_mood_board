@@ -5,9 +5,11 @@
 {% endblock %}
 
 {% block main %}
-    <p>Welcome</p>
-    <div class="d-flex justify-content-center">
-        <img src = {{ image_path }} class="rounded mx-auto d-block" alt="User image" id="user_image">
+    <div>
+        <p class="display-4">{{ username }}</p>
+        <div id="user_image_bg">
+            <img src = {{ image_path }} class="rounded mx-auto d-block" alt="User image" id="user_image">
+        </div>
     </div>
     
 {% endblock %}

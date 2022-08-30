@@ -37,9 +37,11 @@ def create_app(testing: bool = True):
     @app.route("/")
     @login_required
     def index():
+        # Get username
+        username = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])
         # Get user's mood image to display
         user_image_path = "static/mood_images/" + db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"] + ".png"
-        return render_template("index.html", image_path=user_image_path)
+        return render_template("index.html", image_path=user_image_path, username=username[0]["username"])
 
     @app.route("/log_mood")
     @login_required
