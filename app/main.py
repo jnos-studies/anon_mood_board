@@ -7,6 +7,8 @@ from cs50 import SQL
 
 from authentication import login_required, apology
 from datetime import datetime as date
+from free_apis import get_random_quote as quote
+from image_generator import make_mood_image as moodI
 
 import re
 
@@ -53,8 +55,7 @@ def create_app(testing: bool = True):
     @app.route("/login", methods=["GET", "POST"])
     def login():
         # Forget any user_id sessions
-        if len(session) > 0:
-            session.clear()
+        session.clear()
         if request.method == "POST":
 
             # Ensure password and username were submitted
@@ -79,7 +80,7 @@ def create_app(testing: bool = True):
     @app.route("/logout")
     def logout():
         session.clear()
-        redirect("/")
+        return redirect("/")
 
     @app.route("/register", methods=["GET", "POST"])
     def register():
@@ -103,8 +104,10 @@ def create_app(testing: bool = True):
                     return apology("Password must contain at least 8 characters and 1 nonalphanumeric character!")
 
                 if len(user_exists) == 0:
-                    # TODO had a new path for the user's image value, include all values in database.
-                    db.execute("INSERT INTO users (username, hash) VALUES(?, ?)", username, generate_password_hash(password))
+                    # TODO had a new path for the user's image value, include all values in database. Start with the saddest color scheme
+                    image_path = secrets.token_hex(16)
+                    user_image = moodI(image_path, rgb=[57, 59, 87])
+                    db.execute("INSERT INTO users (username, hash, path_to_img) VALUES(?, ?, ?)", username, generate_password_hash(password), image_path)
                     return redirect("/login")
 
                 else:
