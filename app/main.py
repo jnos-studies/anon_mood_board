@@ -37,7 +37,9 @@ def create_app(testing: bool = True):
     @app.route("/")
     @login_required
     def index():
-        return render_template("index.html")
+        # Get user's mood image to display
+        user_image_path = "static/mood_images/" + db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"] + ".png"
+        return render_template("index.html", image_path=user_image_path)
 
     @app.route("/log_mood")
     @login_required
@@ -99,14 +101,14 @@ def create_app(testing: bool = True):
             if password == confirmation:
                 user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
 
-                # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric character
+                # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric characters
                 if len(password) < 8 and len(re.findall("\W+", password)) < 4:
-                    return apology("Password must contain at least 8 characters and 1 nonalphanumeric character!")
+                    return apology("Password must contain at least 8 characters and 4 nonalphanumeric character!")
 
                 if len(user_exists) == 0:
                     # TODO had a new path for the user's image value, include all values in database. Start with the saddest color scheme
                     image_path = secrets.token_hex(16)
-                    user_image = moodI(image_path, rgb=[57, 59, 87])
+                    moodI(image_path, rgb=[57, 59, 87])
                     db.execute("INSERT INTO users (username, hash, path_to_img) VALUES(?, ?, ?)", username, generate_password_hash(password), image_path)
                     return redirect("/login")
 

@@ -9,4 +9,3 @@ def make_mood_image (name, rgb):
         new.save(f"app/static/mood_images/{name}.png")
     else:
         return 1
-
