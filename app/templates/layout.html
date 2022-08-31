@@ -19,18 +19,40 @@
         <title>Anon Mood-board: {% block title %}{% endblock %}</title>
     </head>
     <body>
+        {%if session["user_id"]%}
+        <nav class="nav" style="height:10px;"></nav>
         <nav class="nav">
-            {%if session["user_id"]%}
-                <a class="flex-sm-fill text-sm-center nav-link active emotive" aria-current="page" href="/">Home</a>
-                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/log_mood">Log your mood!</a>
-                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/all_moods">All the feels!</a>
-                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/logout">logout</a>
-            {% else %}
-                <a class="flex-sm-fill text-sm-center nav-link emotive" aria-current="page" href="/login">login</a>
-                <a class="flex-sm-fill text-sm-center nav-link emotive" href="/register">register</a>
-            {%endif%}
-            </nav>
-
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon">
+                      <img id="menu-icon" src="https://freesvg.org/img/menu-icon.png">
+                  </span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                  <ul class="navbar-nav">
+                    <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/log_mood">Log your mood!</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/all_moods">Everyone's mood!</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/logout">Log out</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+        </nav>
+        <nav class="nav" style="height:10px;"></nav>
+        {% else %}
+        <nav class="nav" style="width: 100%;">
+            <a class="flex-sm-fill text-sm-center nav-link emotive" aria-current="page" href="/login">login</a>
+            <a class="flex-sm-fill text-sm-center nav-link emotive" href="/register">register</a>
+        </nav>
+        {%endif%}
         {% if get_flashed_messages() %}
             <header>
                 <div class="alert alert-primary mb-0 text-center" role="alert">
