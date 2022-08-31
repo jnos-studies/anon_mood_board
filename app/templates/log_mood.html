@@ -1,13 +1,16 @@
 {% extends "layout.html" %}
-
 {% block title %}
     Home
 {% endblock %}
 
 {% block main %}
-    <p>Log mood here</p>
-    <div id="recent-moods"></div>
-    <form action="/log_mood" method="post">
+  <script src="static/js/select_mood.js" defer></script>
+  <p>Log mood here</p>
+  <div id="recent-moods"></div>
+  <div id="user_image_bg">
+    <div class="rounded mx-auto d-block" id="mood-select-color"></div>
+  </div>
+    <form action="/log_mood" method="post" id="select-mood-form">
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
             <label class="form-check-label" for="inlineRadio1">1</label>

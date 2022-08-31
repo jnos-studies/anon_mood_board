@@ -52,31 +52,41 @@
     height: 100px;
   }
 
-  #user_image_bg {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    background-color: rgba(215, 54, 92, 0.7);
-    transition: background-color .1s;
-    content: '';
-    background: linear-gradient(45deg, rgb(97, 101, 148), rgb(213, 255, 232), rgb(247, 235, 171));
-    background-size: 200% 200%;
-    background-position: 0% 150%;
-    animation-name: test_hover;
-    animation-duration: 4s;
-    animation-iteration-count: infinite;
-    animation-timing-function: linear;
-    animation-direction: alternate;
-    margin: auto;
-    padding: 25px;
-    border-radius: 10%;
-  }
+#user_image_bg {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  background-color: rgba(215, 54, 92, 0.7);
+  transition: background-color .1s;
+  content: '';
+  background: linear-gradient(45deg, rgb(97, 101, 148), rgb(213, 255, 232), rgb(247, 235, 171));
+  background-size: 200% 200%;
+  background-position: 0% 150%;
+  animation-name: test_hover;
+  animation-duration: 4s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  animation-direction: alternate;
+  margin: auto;
+  padding: 25px;
+  border-radius: 10%;
+}
 
-  @keyframes test_hover {
-    from {
-      background-position: 0% 100%;
-    }
-    to {
-      background-position: 100% 0%;
-    }
+#select-mood-form {
+  margin-top: 4vw;
+}
+
+#mood-select-color {
+    width: 100px;
+    height: 100px;
+    background-color: white;
+}
+
+@keyframes test_hover {
+  from {
+    background-position: 0% 100%;
   }
+  to {
+    background-position: 100% 0%;
+  }
+}
