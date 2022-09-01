@@ -43,10 +43,17 @@ def create_app(testing: bool = True):
         user_image_path = "static/mood_images/" + db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"] + ".png"
         return render_template("index.html", image_path=user_image_path, username=username[0]["username"])
 
-    @app.route("/log_mood")
+    @app.route("/log_mood", methods=["GET","POST"])
     @login_required
     def log_mood():
-        return render_template("log_mood.html")
+        # Get number of users logged moods
+        num_logged_moods = len(db.execute("SELECT user_id FROM moods WHERE user_id = ?", session["user_id"]))
+        # TODO Set a limit on how many logs a user can perform per day (2 per day), and set it to the machine time on server
+        if request.method == "POST":
+            rating = request.form["inlineRadioOptions"]
+            # db.execute("INSERT INTO moods(user_id, rating) VALUES(?, ?)", session["user_id"], rating)
+
+        return render_template("log_mood.html", log_nums=num_logged_moods)
 
     @app.route("/all_moods")
     @login_required
@@ -72,7 +79,7 @@ def create_app(testing: bool = True):
             rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
 
             # Ensure username exists and password is correct
-            if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
+            if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")) or not len(request.form.get("username")) < 15:
                 return apology("Invalid username and/or password!", 403)
             
             session["user_id"] = rows[0]["id"]
