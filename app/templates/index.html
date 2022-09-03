@@ -11,5 +11,28 @@
             <img src = {{ image_path }} class="rounded mx-auto d-block" alt="User image" id="user_image">
         </div>
     </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Mood</th>
+                <th scope="col">Rating</th>
+                <th scope="col">Logged</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mood in moods %}
+            <tr>
+                <th scope="row"> {{ loop.index }} </th>
+                <td>
+                    <div class="rounded mx-auto d-block" id={{ mood.rating }}>mood</div>
+                </td>
+                <td>{{ mood.rating }}</td>
+                <td>{{ mood.date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     
 {% endblock %}

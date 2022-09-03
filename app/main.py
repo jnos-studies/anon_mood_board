@@ -12,6 +12,9 @@ from image_generator import make_mood_image as moodI
 
 import re
 
+# importing custom config file
+import config
+
 def create_app(testing: bool = True):
 
     app = Flask(__name__)
@@ -30,6 +33,7 @@ def create_app(testing: bool = True):
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
         response.headers["Expires"] = 0
         response.headers["Pragma"] = "no-cache"
+        response.headers["SameSite"] = "Strict"
         return response
     # User home page will show them how many times they logged their mood,
     # There generated mood color, how many users share similar moods,
@@ -41,18 +45,42 @@ def create_app(testing: bool = True):
         username = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])
         # Get user's mood image to display
         user_image_path = "static/mood_images/" + db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"] + ".png"
-        return render_template("index.html", image_path=user_image_path, username=username[0]["username"])
+        # Get user moods
+        moods = db.execute("SELECT rating, date FROM moods WHERE user_id = ?", session["user_id"])
+        average_feels = int(db.execute("SELECT avg(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])[0]["average"])
+        return render_template("index.html", image_path=user_image_path, username=username[0]["username"], moods=moods, rgb=config.RGB_SCHEME_MAP)
 
     @app.route("/log_mood", methods=["GET","POST"])
     @login_required
     def log_mood():
         # Get number of users logged moods
-        num_logged_moods = len(db.execute("SELECT user_id FROM moods WHERE user_id = ?", session["user_id"]))
+        moods = db.execute("SELECT date FROM moods WHERE user_id = ?", session["user_id"])
+        num_logged_moods = len(moods)
+
+        # Get user image path to overwrite their picture with their averaged mood.
+        user_image_path = db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"]
+
+        # For checking the log limit, reject request if user exceeds their daily limit
+        current_date = date.now()
+        limit = config.LOG_LIMIT
+        timedeltas = ""
+        # Limit is defined in seconds for accuracy. Check that the last two logs are within limit, if number of logs is less than 2, timedelta equals the limit, allowing log of moods
+        if num_logged_moods >= 2:
+            timedeltas = [(current_date - date.strptime(moods[-2:][0]["date"],"%Y-%m-%d %H:%M:%S")).total_seconds(), (current_date - date.strptime(moods[-2:][1]["date"],"%Y-%m-%d %H:%M:%S")).total_seconds()]
+        else:
+            timedeltas = [limit, limit]
         # TODO Set a limit on how many logs a user can perform per day (2 per day), and set it to the machine time on server
         if request.method == "POST":
-            rating = request.form["inlineRadioOptions"]
-            # db.execute("INSERT INTO moods(user_id, rating) VALUES(?, ?)", session["user_id"], rating)
+            if timedeltas[0] < limit and timedeltas[1] < limit:
+                next_log = round(limit - timedeltas[1])
+                flash("You can only log 2 moods per day! Time until next available log is {} seconds, {} minutes, or {} hours!!".format(next_log, round(next_log / 60, 2), round((next_log / 60) / 60), 2))
+            else:
+                rating = request.form["inlineRadioOptions"]
+                db.execute("INSERT INTO moods(user_id, rating) VALUES(?, ?)", session["user_id"], rating)
+                average_feels = int(db.execute("SELECT avg(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])[0]["average"])
+                moodI(user_image_path, rgb=config.RGB_SCHEME_MAP[average_feels])
 
+                return redirect("log_mood")
         return render_template("log_mood.html", log_nums=num_logged_moods)
 
     @app.route("/all_moods")
