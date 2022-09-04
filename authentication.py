@@ -1,6 +1,15 @@
 from flask import redirect, render_template, request, session
 from functools import wraps
+import sre_parse
 
+def convert_to_regexp(pattern):
+    special_characters = set(sre_parse.SPECIAL_CHARS)
+    special_characters.remove('*')
+
+    safe_pattern = ''.join(['\\' + c if c in special_characters else c for c in pattern ])
+
+    return safe_pattern.replace('*', '\\w+')
+    
 def apology(message, code=400):
     """Render message as an apology to user."""
     def escape(s):

@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block main %}
+    <script src="static/js/logged_moods.js" defer></script>
     <div>
         <p class="display-4">{{ username }}</p>
         <div id="user_image_bg">
@@ -26,7 +27,7 @@
             <tr>
                 <th scope="row"> {{ loop.index }} </th>
                 <td>
-                    <div class="rounded mx-auto d-block" id={{ mood.rating }}>mood</div>
+                    <div class="rounded mx-auto d-block moods" id={{ mood.rating }}>'</div>
                 </td>
                 <td>{{ mood.rating }}</td>
                 <td>{{ mood.date }}</td>

@@ -1,5 +1,4 @@
-const color_selection = document.getElementById("mood-select-color")
-// starting point for color selection rgb(57, 59, 87)
+let moods = document.getElementsByClassName("moods")
 const [r, g, b] = [57, 59, 87]
 const color_dictionary = {
     // each subsequent rgb value is calculated on a pre-selected set of 10 colors
@@ -16,8 +15,7 @@ const color_dictionary = {
     10:[r + 19 * 10, g + 17 * 10, b + 8 * 10],
 }
 
-document.getElementById("select-mood-form").addEventListener("click",()=>
+for (let i = 0; i < moods.length; i++)
 {
-    let selection = document.querySelector('input[name="inlineRadioOptions"]:checked').value
-    color_selection.style.backgroundColor = `rgb(${color_dictionary[selection][0]}, ${color_dictionary[selection][1]}, ${color_dictionary[selection][2]})`
-})
+    document.getElementById(moods[i].id).style = `width: 50px; height: 100%; background-color: rgb(${color_dictionary[moods[i].id][0]}, ${color_dictionary[moods[i].id][1]}, ${color_dictionary[moods[i].id][2]}); color: rgb(${color_dictionary[moods[i].id][0]}, ${color_dictionary[moods[i].id][1]}, ${color_dictionary[moods[i].id][2]});`
+}

@@ -82,6 +82,9 @@
     background-color: white;
 }
 
+#log-mood {
+  margin-top: 4vw;
+}
 @keyframes test_hover {
   from {
     background-position: 0% 100%;

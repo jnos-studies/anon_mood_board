@@ -5,7 +5,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from cs50 import SQL
 
-from authentication import login_required, apology
+from authentication import login_required, apology, convert_to_regexp
 from datetime import datetime as date
 from free_apis import get_random_quote as quote
 from image_generator import make_mood_image as moodI
@@ -20,6 +20,8 @@ def create_app(testing: bool = True):
     app = Flask(__name__)
     # configure session to use filesystem (instead of signed cookies)
     app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+    #configure session to use file-system (instead of signed cookies)
     app.config["SESSION_PERMANENT"] = False
     app.config["SESSION_TYPE"] = "filesystem"
     Session(app)
@@ -47,8 +49,12 @@ def create_app(testing: bool = True):
         user_image_path = "static/mood_images/" + db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"] + ".png"
         # Get user moods
         moods = db.execute("SELECT rating, date FROM moods WHERE user_id = ?", session["user_id"])
-        average_feels = int(db.execute("SELECT avg(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])[0]["average"])
-        return render_template("index.html", image_path=user_image_path, username=username[0]["username"], moods=moods, rgb=config.RGB_SCHEME_MAP)
+        # Reverse list object to put most recently logged on top
+        reverse_moods = []
+        for m in moods:
+            reverse_moods.insert(0, m)
+
+        return render_template("index.html", image_path=user_image_path, username=username[0]["username"], moods=reverse_moods, rgb=config.RGB_SCHEME_MAP)
 
     @app.route("/log_mood", methods=["GET","POST"])
     @login_required
@@ -75,12 +81,31 @@ def create_app(testing: bool = True):
                 next_log = round(limit - timedeltas[1])
                 flash("You can only log 2 moods per day! Time until next available log is {} seconds, {} minutes, or {} hours!!".format(next_log, round(next_log / 60, 2), round((next_log / 60) / 60), 2))
             else:
+                # Get selected rating
                 rating = request.form["inlineRadioOptions"]
+
+                # Get the one word description after validating that it is one word and purely alphabetic
+                emot_description = request.form.get("emot_description")
+                r_pattern = convert_to_regexp(emot_description)
+                # If there is a space, digit or the escape character '\' it is an invalid input
+                regex = re.search("[\d\s\\\]", r_pattern)
+                if regex:
+                    flash("Only single word descriptions of your mood are allowed!")
+                    return redirect("/log_mood")
+                
+                # Otherwise insert logged mood into moods
                 db.execute("INSERT INTO moods(user_id, rating) VALUES(?, ?)", session["user_id"], rating)
+                # id of the last mood the user has logged
+                mood_id = db.execute("SELECT * FROM moods WHERE user_id = ?", session["user_id"])[-1:][0]["mood_id"]
+                # insert into the moods descriptions table
+                db.execute("INSERT INTO mood_descriptions(fmood_id, description) VALUES(?, ?)", mood_id, emot_description)
+                
                 average_feels = int(db.execute("SELECT avg(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])[0]["average"])
                 moodI(user_image_path, rgb=config.RGB_SCHEME_MAP[average_feels])
 
                 return redirect("log_mood")
+
+
         return render_template("log_mood.html", log_nums=num_logged_moods)
 
     @app.route("/all_moods")

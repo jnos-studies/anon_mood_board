@@ -1,5 +1,6 @@
 from multiprocessing.dummy import Array
 from PIL import Image
+import config
 # https://holypython.com/python-pil-tutorial/how-to-create-a-new-image-with-pil/
 
 def make_mood_image (name, rgb):
