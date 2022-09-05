@@ -110,13 +110,13 @@
   border-radius: 50%;
   transform: scale(1);
   transition: 120ms transform ease-in-out;
-  box-shadow: inset 1em 1em 1em;
-  border: 3px solid rgb(247, 235, 171);
+  box-shadow: inset white 1em 1em 1em;
 }
 
 .form-check-input:focus {
-  outline: max(2px, 0.15em) solid currentColor;
-  outline-offset: max(2px, 0.15em);
+  outline: max(5px, 0.15em) solid currentColor;
+  outline-offset: max(3px, 0.15em);
+  outline-color: rgb(57, 59, 87);
 }
 
 .checkboxgroup {

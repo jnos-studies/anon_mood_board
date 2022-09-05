@@ -15,9 +15,24 @@ const color_dictionary = {
     9:[r + 19 * 9, g + 17 * 9, b + 8 * 9],
     10:[r + 19 * 10, g + 17 * 10, b + 8 * 10],
 }
-
+let selection = document.querySelector('input[name="inlineRadioOptions"]:checked').value
+    color_selection.style.backgroundColor = `rgb(${color_dictionary[selection][0]}, ${color_dictionary[selection][1]}, ${color_dictionary[selection][2]})`
+    let selection_el = document.querySelector('input[name="inlineRadioOptions"]:checked').id
+    let selection_style = document.getElementById(selection_el)
+    selection_style.style.boxShadow = `inset rgb(${color_dictionary[selection][0]}, ${color_dictionary[selection][1]}, ${color_dictionary[selection][2]}) 1em 1em 1em`
+    selection_style.style.border = `8px solid rgb(${color_dictionary[selection][0]}, ${color_dictionary[selection][1]}, ${color_dictionary[selection][2]})`
 document.getElementById("select-mood-form").addEventListener("click",()=>
 {
+    let check_boxes = document.getElementsByClassName("form-check-input")
+    //loop through elements to change their styles back to normal
+    for (let i = 0; i < check_boxes.length; i++)
+    {
+        check_boxes[i].style = "border: 3px solid rgb(57, 59, 87); width: 1em; height: 1em;"
+    }
     let selection = document.querySelector('input[name="inlineRadioOptions"]:checked').value
     color_selection.style.backgroundColor = `rgb(${color_dictionary[selection][0]}, ${color_dictionary[selection][1]}, ${color_dictionary[selection][2]})`
+    let selection_el = document.querySelector('input[name="inlineRadioOptions"]:checked').id
+    let selection_style = document.getElementById(selection_el)
+    selection_style.style.boxShadow = `inset rgb(${color_dictionary[selection][0]}, ${color_dictionary[selection][1]}, ${color_dictionary[selection][2]}) 1em 1em 1em`
+    selection_style.style.border = `8px solid rgb(${color_dictionary[selection][0]}, ${color_dictionary[selection][1]}, ${color_dictionary[selection][2]})`
 })
