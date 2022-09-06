@@ -1,5 +1,7 @@
 import os
 import secrets
+# TODO implement request limiter before publishing!
+# https://medium.com/analytics-vidhya/how-to-rate-limit-routes-in-flask-61c6c791961b
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -53,8 +55,11 @@ def create_app(testing: bool = True):
         reverse_moods = []
         for m in moods:
             reverse_moods.insert(0, m)
+        
+        # Get a quote to put on user's homepage
+        inspirational_quote = quote()
 
-        return render_template("index.html", image_path=user_image_path, username=username[0]["username"], moods=reverse_moods, rgb=config.RGB_SCHEME_MAP)
+        return render_template("index.html", image_path=user_image_path, username=username[0]["username"], moods=reverse_moods, rgb=config.RGB_SCHEME_MAP, quote_text=inspirational_quote['text'], quote_author=inspirational_quote['author'])
 
     @app.route("/log_mood", methods=["GET","POST"])
     @login_required
@@ -155,6 +160,7 @@ def create_app(testing: bool = True):
             username, password, confirmation = request.form.get(
                 "username"), request.form.get("password"), request.form.get("confirmation")
              # Only allow certain characters for username, sanitize user input
+             # TODO implement this with sre_parse module instead
             for i in illegal_chars:
                 for c in username:
                     if i == c:
@@ -185,4 +191,3 @@ def create_app(testing: bool = True):
             
     
     return app
-

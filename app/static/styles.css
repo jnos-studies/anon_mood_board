@@ -1,3 +1,4 @@
+/*index and layout*/
 .emotive {
     outline: none;
     color: rgb(219, 219, 217);
@@ -42,7 +43,6 @@
     background-color: rgb(247, 235, 171);
 }
 
-/*Custom css*/
 #menu-icon {
   width: 100%;
   height: 100%;
@@ -72,8 +72,35 @@
   border-radius: 10%;
 }
 
+blockquote {
+  margin-top: 1.5em;
+  padding: 5%;
+}
+.blockquote-footer {
+  margin-top: 1em;
+}
+.mb-0 {
+  color : rgb(43, 43, 42);
+}
+/*log mood*/
 #select-mood-form {
   margin-top: 4vw;
+  margin-bottom: 4vw;
+  padding: 5%;
+}
+@media (max-width:600px){
+  .lead {
+    display: none;
+  }
+  #select-mood-form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  #log-mood {
+    width: 200%;
+    height:fit-content;
+  }
 }
 
 #mood-select-color {
@@ -83,7 +110,7 @@
 }
 
 #log-mood {
-  margin-top: 4vw;
+  margin-top: 1.5vw;
 }
 
 .mood-word {
