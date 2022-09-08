@@ -4,3 +4,15 @@
     All Moods
 {% endblock %}
 
+{% block main %}
+<script
+src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+</script>
+<script defer>
+    const date_to_ratings = "{{ dates_and_ratings }}"
+    console.log(date_to_ratings)
+</script>
+
+
+
+{% endblock %}

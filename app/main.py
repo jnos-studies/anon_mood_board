@@ -117,7 +117,8 @@ def create_app(testing: bool = True):
     @login_required
     def all_moods():
         #  TODO Provide statistics on user compared to others and add to the render template
-        return render_template("all_moods.html")
+        dates_and_ratings = db.execute("SELECT date, rating FROM moods WHERE user_id = ?", session["user_id"])
+        return render_template("all_moods.html", dates_and_ratings=dates_and_ratings)
 
     
     # Handling logins, logouts, and registering users
@@ -126,7 +127,6 @@ def create_app(testing: bool = True):
         # Forget any user_id sessions
         session.clear()
         if request.method == "POST":
-
             # Ensure password and username were submitted
             if not request.form.get('username'):
                 return apology("Must provide username", 403)

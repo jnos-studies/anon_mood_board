@@ -17,5 +17,6 @@ const color_dictionary = {
 
 for (let i = 0; i < moods.length; i++)
 {
-    document.getElementById(moods[i].id).style = `width: 50px; height: 100%; background-color: rgb(${color_dictionary[moods[i].id][0]}, ${color_dictionary[moods[i].id][1]}, ${color_dictionary[moods[i].id][2]}); color: rgb(${color_dictionary[moods[i].id][0]}, ${color_dictionary[moods[i].id][1]}, ${color_dictionary[moods[i].id][2]});`
+    //console.log(moods[i].getAttribute("value"))
+    moods[i].style = `width: 50px; height: 100%; background-color: rgb(${color_dictionary[moods[i].getAttribute("value")][0]}, ${color_dictionary[moods[i].getAttribute("value")][1]}, ${color_dictionary[moods[i].getAttribute("value")][2]}); color: rgb(${color_dictionary[moods[i].getAttribute("value")][0]}, ${color_dictionary[moods[i].getAttribute("value")][1]}, ${color_dictionary[moods[i].getAttribute("value")][2]});`
 }
