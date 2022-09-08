@@ -116,9 +116,11 @@ def create_app(testing: bool = True):
     @app.route("/all_moods")
     @login_required
     def all_moods():
-        #  TODO Provide statistics on user compared to others and add to the render template
-        dates_and_ratings = db.execute("SELECT date, rating FROM moods WHERE user_id = ?", session["user_id"])
-        return render_template("all_moods.html", dates_and_ratings=dates_and_ratings)
+        # Show the most rated feelings that the user has selected
+        user_most_rated = db.execute("SELECT rating, COUNT(*) AS count FROM moods WHERE user_id = ? GROUP BY rating", session["user_id"])
+        user_rate = [r["rating"] for r in user_most_rated]
+        user_rate_count = [r["count"] for r in user_most_rated]
+        return render_template("all_moods.html", user_rated=user_rate, user_rated_count=user_rate_count)
 
     
     # Handling logins, logouts, and registering users
