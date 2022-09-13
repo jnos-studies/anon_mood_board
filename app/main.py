@@ -26,6 +26,7 @@ def create_app(testing: bool = True):
     #configure session to use file-system (instead of signed cookies)
     app.config["SESSION_PERMANENT"] = False
     app.config["SESSION_TYPE"] = "filesystem"
+    app.config["DEBUG"] = True
     Session(app)
 
     # Testing database to be used before production database
@@ -116,11 +117,16 @@ def create_app(testing: bool = True):
     @app.route("/all_moods")
     @login_required
     def all_moods():
+        # TODO later create a view to simplifiy accessing the data
         # Show the most rated feelings that the user has selected
-        user_most_rated = db.execute("SELECT rating, COUNT(*) AS count FROM moods WHERE user_id = ? GROUP BY rating", session["user_id"])
+        user_most_rated = db.execute("SELECT rating, COUNT(*) AS count FROM moods WHERE user_id = ? GROUP BY rating;", session["user_id"])
         user_rate = [r["rating"] for r in user_most_rated]
         user_rate_count = [r["count"] for r in user_most_rated]
-        return render_template("all_moods.html", user_rated=user_rate, user_rated_count=user_rate_count)
+        all_users_most_rated = db.execute("SELECT rating, COUNT(*) AS count FROM moods WHERE rating in (SELECT DISTINCT rating FROM moods WHERE user_id = ?) GROUP BY rating;", session["user_id"])
+        all_users_rate = [r["rating"] for r in all_users_most_rated]
+        all_users_rate_count = [r["count"] for r in all_users_most_rated]
+
+        return render_template("all_moods.html", user_rated=user_rate, user_rated_count=user_rate_count, all_rated=all_users_rate, all_rated_count=all_users_rate_count)
 
     
     # Handling logins, logouts, and registering users
@@ -190,6 +196,6 @@ def create_app(testing: bool = True):
 
         else:
             return render_template("register.html")
-            
     
     return app
+

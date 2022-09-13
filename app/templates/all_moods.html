@@ -6,8 +6,26 @@
 
 {% block main %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
-<canvas id="myChart" width="200" height="200"></canvas>
-<data id="data" style = "display:none;">{{ user_rated }}-{{ user_rated_count }}</data>
+
+<div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    <div class="carousel-item active" data-bs-interval="10000">
+      <canvas id="barChart" width="90%" height="50%" class="d-block w-100"></canvas>
+    </div>
+    <div class="carousel-item" data-bs-interval="10000">
+      <img src="..." class="d-block w-100" alt="...">
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+<data id="data" style = "display:none;">{{ user_rated }}-{{ user_rated_count }}-{{all_rated}}-{{all_rated_count}}</data>
 <script>
     const [r, g, b] = [57, 59, 87]
     const color_dictionary = {
@@ -24,27 +42,66 @@
         9:[r + 19 * 9, g + 17 * 9, b + 8 * 9],
         10:[r + 19 * 10, g + 17 * 10, b + 8 * 10],
     }
+
+    function difference(arr, arr2)
+    {
+      let new_arr = [];
+      for (let i = 1; i < arr.length; i++)
+      {
+        if (!arr[i] - arr2[i])
+        {
+          new_arr.push(arr[i] - arr2[i])  
+        }
+      }
+      return new_arr
+    }
+    //USER BAR CHART
     const data = document.getElementById("data").innerText.split("-")
     const user_data_x = JSON.parse("[" + data[0] + "]")[0]
     const user_data_y = JSON.parse("[" + data[1] + "]")[0]
-    new Chart("myChart", {
+    const all_user_data_x = JSON.parse("[" + data[2] + "]")[0]
+    const all_user_data_y = JSON.parse("[" + data[3] + "]")[0]
+
+    
+    const bars_rgb = user_data_x.map(n => `rgb(${color_dictionary[n][0]}, ${color_dictionary[n][1]}, ${color_dictionary[n][2]})`)
+    new Chart("barChart", {
       type: "bar",
       data: {
         labels: user_data_x,
-        datasets: [{
-          fill: false,
-          lineTension: 0,
-          backgroundColor: "rgba(0,0,255,1.0)",
-          borderColor: "rgba(0,0,255,0.1)",
-          data: user_data_y
-        }]
+        datasets: [
+          {
+            label: "Your most picked moods!",
+            fill: false,
+            lineTension: 0,
+            backgroundColor: bars_rgb,
+            borderColor: bars_rgb,
+            data: user_data_y
+          }, 
+          {
+            label: "Your selected moods compared with others!",
+            fill:false,
+            backgroundColor: "grey",
+            data: difference(all_user_data_y, user_data_x)
+          }
+        ]
       },
       options: {
-        legend: {display: true},
+        legend: {display: false},
+        title : {
+          display: true,
+          text: "Your most picked moods!"
+        },
+        responsive:true,
         scales: {
-          yAxes: [{ticks: {min: 0, max:16}}],
-        }
+          x: {
+            stacked: true
+          },
+          y: {
+            stacked: true
+          },
+        },
       }
     });
+    //USER LINE CHART
 </script>
 {% endblock %}
