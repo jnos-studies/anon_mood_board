@@ -10,7 +10,7 @@
 <div id="carouselExampleFade" class="carousel slide carousel-fade" data-bs-ride="carousel">
   <div class="carousel-inner">
     <div class="carousel-item active" data-bs-interval="10000">
-      <canvas id="barChart" width="90%" height="50%" class="d-block w-100"></canvas>
+      <canvas id="barChart" width="100%" height="50%" class="d-block w-100"></canvas>
     </div>
     <div class="carousel-item" data-bs-interval="10000">
       <img src="..." class="d-block w-100" alt="...">
@@ -46,12 +46,9 @@
     function difference(arr, arr2)
     {
       let new_arr = [];
-      for (let i = 1; i < arr.length; i++)
+      for (let i = 0; i < arr.length; i++)
       {
-        if (!arr[i] - arr2[i])
-        {
-          new_arr.push(arr[i] - arr2[i])  
-        }
+        new_arr.push(arr[i] - arr2[i])
       }
       return new_arr
     }
@@ -81,7 +78,7 @@
             label: "Your selected moods compared with others!",
             fill:false,
             backgroundColor: "grey",
-            data: difference(all_user_data_y, user_data_x)
+            data: difference(all_user_data_y, user_data_y)
           }
         ]
       },
