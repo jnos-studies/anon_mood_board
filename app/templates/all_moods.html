@@ -13,7 +13,7 @@
       <canvas id="barChart" width="100%" height="50%" class="d-block w-100"></canvas>
     </div>
     <div class="carousel-item" data-bs-interval="10000">
-      <img src="..." class="d-block w-100" alt="...">
+      <canvas id="lineChart" width="100%" height="50%" class="d-block w-100"></canvas>
     </div>
   </div>
   <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleFade" data-bs-slide="prev">
@@ -59,6 +59,11 @@
     const all_user_data_x = JSON.parse("[" + data[2] + "]")[0]
     const all_user_data_y = JSON.parse("[" + data[3] + "]")[0]
 
+    //TODO
+    //const time_data_user
+
+    //const time_data_all
+
     
     const bars_rgb = user_data_x.map(n => `rgb(${color_dictionary[n][0]}, ${color_dictionary[n][1]}, ${color_dictionary[n][2]})`)
     new Chart("barChart", {
@@ -75,7 +80,7 @@
             data: user_data_y
           }, 
           {
-            label: "Your selected moods compared with others!",
+            label: "Your moods out of everyone's moods!",
             fill:false,
             backgroundColor: "grey",
             data: difference(all_user_data_y, user_data_y)
@@ -99,6 +104,12 @@
         },
       }
     });
-    //USER LINE CHART
+    //USER LINE CHART Show the months with colours
+    new Chart("lineChart", {
+      type: "line",
+      data: {
+        labels: []
+      }
+    })
 </script>
 {% endblock %}
