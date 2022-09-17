@@ -126,7 +126,17 @@ def create_app(testing: bool = True):
         all_users_rate = [r["rating"] for r in all_users_most_rated]
         all_users_rate_count = [r["count"] for r in all_users_most_rated]
 
-        return render_template("all_moods.html", user_rated=user_rate, user_rated_count=user_rate_count, all_rated=all_users_rate, all_rated_count=all_users_rate_count)
+        month_avg_user = db.execute("SELECT DISTINCT strftime('%m-%d-%Y', date) AS fdate, AVG(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])
+        daily_avg_user = db.execute("SELECT strftime('%m-%d-%Y', date) AS fdate, COUNT(*) AS count, AVG(rating) as average_rating FROM moods WHERE user_id = ? GROUP BY fdate;", session["user_id"])
+
+        daily_avg_all = db.execute("SELECT * FROM daily_average;")
+        month_avg_all = db.execute("SELECT * FROM monthly_average;")
+
+        return render_template("all_moods.html",\
+            user_rated=user_rate, user_rated_count=user_rate_count,\
+            all_rated=all_users_rate, all_rated_count=all_users_rate_count,\
+            user_daily=daily_avg_user, user_monthly=month_avg_user,\
+            daily_avg_all=daily_avg_all, month_avg_all=month_avg_all)
 
     
     # Handling logins, logouts, and registering users
