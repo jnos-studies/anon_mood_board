@@ -117,7 +117,6 @@ def create_app(testing: bool = True):
     @app.route("/all_moods")
     @login_required
     def all_moods():
-        # TODO later create a view to simplifiy accessing the data
         # Show the most rated feelings that the user has selected
         user_most_rated = db.execute("SELECT rating, COUNT(*) AS count FROM moods WHERE user_id = ? GROUP BY rating;", session["user_id"])
         user_rate = [r["rating"] for r in user_most_rated]
@@ -126,17 +125,20 @@ def create_app(testing: bool = True):
         all_users_rate = [r["rating"] for r in all_users_most_rated]
         all_users_rate_count = [r["count"] for r in all_users_most_rated]
 
-        month_avg_user = db.execute("SELECT DISTINCT strftime('%m-%d-%Y', date) AS fdate, AVG(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])
         daily_avg_user = db.execute("SELECT strftime('%m-%d-%Y', date) AS fdate, COUNT(*) AS count, AVG(rating) as average_rating FROM moods WHERE user_id = ? GROUP BY fdate;", session["user_id"])
+        dau_x = [a["fdate"] for a in daily_avg_user]
+        dau_y = [a["average_rating"] for a in daily_avg_user]
 
-        daily_avg_all = db.execute("SELECT * FROM daily_average;")
-        month_avg_all = db.execute("SELECT * FROM monthly_average;")
+        daily_avg_all = db.execute("SELECT * FROM daily_average WHERE fdate IN (SELECT strftime('%m-%d-%Y', date) AS fdate FROM moods WHERE user_id = ? GROUP BY fdate)", session["user_id"])
+
+        daa_x = [a["fdate"] for a in daily_avg_all if a["fdate"]]
+        daa_y = [a["average_rating"] for a in daily_avg_all]
 
         return render_template("all_moods.html",\
             user_rated=user_rate, user_rated_count=user_rate_count,\
             all_rated=all_users_rate, all_rated_count=all_users_rate_count,\
-            user_daily=daily_avg_user, user_monthly=month_avg_user,\
-            daily_avg_all=daily_avg_all, month_avg_all=month_avg_all)
+            user_daily_x=dau_x, daily_avg_all_x=daa_x,\
+            user_daily_y=dau_y, daily_avg_all_y=daa_y)
 
     
     # Handling logins, logouts, and registering users
@@ -192,7 +194,6 @@ def create_app(testing: bool = True):
                     return apology("Password must contain at least 8 characters and 4 nonalphanumeric character!")
 
                 if len(user_exists) == 0:
-                    # TODO had a new path for the user's image value, include all values in database. Start with the saddest color scheme
                     image_path = secrets.token_hex(16)
                     moodI(image_path, rgb=[57, 59, 87])
                     db.execute("INSERT INTO users (username, hash, path_to_img) VALUES(?, ?, ?)", username, generate_password_hash(password), image_path)

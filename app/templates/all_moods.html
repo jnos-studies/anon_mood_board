@@ -25,7 +25,7 @@
     <span class="visually-hidden">Next</span>
   </button>
 </div>
-<data id="data" style = "display:none;">{{ user_rated }}-{{ user_rated_count }}-{{all_rated}}-{{all_rated_count}}</data>
+<data id="data" style = "display:none;">{{ user_rated }}={{ user_rated_count }}={{all_rated}}={{all_rated_count}}={{user_daily_x}}={{user_daily_y}}={{daily_avg_all_x}}={{daily_avg_all_y}}</data>
 <script>
     const [r, g, b] = [57, 59, 87]
     const color_dictionary = {
@@ -53,18 +53,18 @@
       return new_arr
     }
     //USER BAR CHART
-    const data = document.getElementById("data").innerText.split("-")
+    const data = document.getElementById("data").innerText.split("=")
     const user_data_x = JSON.parse("[" + data[0] + "]")[0]
     const user_data_y = JSON.parse("[" + data[1] + "]")[0]
     const all_user_data_x = JSON.parse("[" + data[2] + "]")[0]
     const all_user_data_y = JSON.parse("[" + data[3] + "]")[0]
 
-    //TODO
-    //const time_data_user
+    const user_daily_x = data[4].replace(/[\[\] ']/g,"").split(",")
+    const user_daily_y = data[5].replace(/[\[\] ']/g,"").split(",")
+    const all_user_daily_x = data[6].replace(/[\[\] ']/g,"").split(",")
+    const all_user_daily_y = data[7].replace(/[\[\] ']/g,"").split(",")
 
-    //const time_data_all
 
-    
     const bars_rgb = user_data_x.map(n => `rgb(${color_dictionary[n][0]}, ${color_dictionary[n][1]}, ${color_dictionary[n][2]})`)
     new Chart("barChart", {
       type: "bar",
@@ -108,7 +108,25 @@
     new Chart("lineChart", {
       type: "line",
       data: {
-        labels: []
+        labels: user_daily_x,
+        datasets: [
+          {
+            label: "Your average moods through time, per day",
+            data: user_daily_y,
+            fill: false,
+            borderColor: 'blue',
+            backgroundColor: 'blue',
+            tension: 0.2
+          },
+          {
+            label: "All moods averaged on the same day",
+            data: all_user_daily_y,
+            fill: false,
+            borderColor: 'grey',
+            backgroundColor: 'grey',
+            tension: 0.2
+          }
+        ],
       }
     })
 </script>
