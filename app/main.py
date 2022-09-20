@@ -11,6 +11,7 @@ from authentication import login_required, apology, convert_to_regexp
 from datetime import datetime as date
 from free_apis import get_random_quote as quote
 from image_generator import make_mood_image as moodI
+from image_generator import make_word_cloud as wordC
 
 import re
 
@@ -71,7 +72,7 @@ def create_app(testing: bool = True):
 
         # Get user image path to overwrite their picture with their averaged mood.
         user_image_path = db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"]
-
+        
         # For checking the log limit, reject request if user exceeds their daily limit
         current_date = date.now()
         limit = config.LOG_LIMIT
@@ -106,15 +107,28 @@ def create_app(testing: bool = True):
                 # insert into the moods descriptions table
                 db.execute("INSERT INTO mood_descriptions(fmood_id, description) VALUES(?, ?)", mood_id, emot_description)
                 
+                # users average feeling
                 average_feels = int(db.execute("SELECT avg(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])[0]["average"])
+
+                # update the image for the user's mood which data will be used as a wordcloud for all_moods.html
+                wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"]
+                if not wc_path_to:
+                    wc_path_to = "static/word_maps/" + secrets.token_hex(16) + ".png"
+                else:
+                    wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"]
+
+                # Get user data to turn their words into a word cloud
+                user_wc_data = db.execute("SELECT moods.rating AS rating, mood_descriptions.description AS description FROM moods INNER JOIN mood_descriptions ON mood_descriptions.fmood_id = moods.mood_id WHERE moods.user_id = ?;", session["user_id"])
+
                 moodI(user_image_path, rgb=config.RGB_SCHEME_MAP[average_feels])
+                wordC(wc_path_to, user_wc_data)
 
                 return redirect("log_mood")
 
 
         return render_template("log_mood.html", log_nums=num_logged_moods)
 
-    @app.route("/all_moods")
+    @app.route("/all_moods", methods=['GET'])
     @login_required
     def all_moods():
         # Show the most rated feelings that the user has selected
@@ -125,14 +139,20 @@ def create_app(testing: bool = True):
         all_users_rate = [r["rating"] for r in all_users_most_rated]
         all_users_rate_count = [r["count"] for r in all_users_most_rated]
 
+        # Get the average user ratings for both the single user.
         daily_avg_user = db.execute("SELECT strftime('%m-%d-%Y', date) AS fdate, COUNT(*) AS count, AVG(rating) as average_rating FROM moods WHERE user_id = ? GROUP BY fdate;", session["user_id"])
         dau_x = [a["fdate"] for a in daily_avg_user]
         dau_y = [a["average_rating"] for a in daily_avg_user]
 
+        # Get the averate user ratings for every user which logged a mood the same day as the logged user.
         daily_avg_all = db.execute("SELECT * FROM daily_average WHERE fdate IN (SELECT strftime('%m-%d-%Y', date) AS fdate FROM moods WHERE user_id = ? GROUP BY fdate)", session["user_id"])
-
         daa_x = [a["fdate"] for a in daily_avg_all if a["fdate"]]
         daa_y = [a["average_rating"] for a in daily_avg_all]
+
+        # TODO get word map data for user and all users
+
+        # user_map
+        # all_map
 
         return render_template("all_moods.html",\
             user_rated=user_rate, user_rated_count=user_rate_count,\
