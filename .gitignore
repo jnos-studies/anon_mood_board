@@ -137,3 +137,6 @@ test_data.db
 *word_maps
 !mood_images/.gitkeep
 !word_maps/.gitkeep
+
+#sql files
+.database_schema.sql

@@ -31,7 +31,7 @@ def create_app(testing: bool = True):
     Session(app)
 
     # Testing database to be used before production database
-    db = SQL("sqlite:///test_data.db")
+    db = SQL(os.getenv("TESTING_DATABASE"))
 
     @app.after_request
     def after_request(response):
