@@ -55,7 +55,7 @@ def create_app(testing: bool = True):
         # Get user's path to their word cloud if it exists, perform a try/except for Nontypes
         wc_path_to = ""
         try:
-            wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"][4::]
+            wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"][4::] + ".png"
         except:
             pass
 
