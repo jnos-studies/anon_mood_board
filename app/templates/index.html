@@ -16,7 +16,13 @@
         <p class="mb-0"> "{{ quote_text }}"</p>
         <footer class="blockquote-footer">{{ quote_author }}</footer>
     </blockquote>
-    <table class="table">
+
+    {% if path_to_wc %}
+        <div id="wordcloud" class="text-center container-fluid">
+            <img src={{ path_to_wc }} alt="Your wordcloud" class="img-fluid" width="80%" border-radius="10%">
+        </div>
+    {% endif %}
+    <table class="table container-fluid" style="width:80%">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -38,5 +44,4 @@
             {% endfor %}
         </tbody>
     </table>
-    
 {% endblock %}

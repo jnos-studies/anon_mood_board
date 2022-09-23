@@ -1,11 +1,10 @@
-from multiprocessing.dummy import Array
 from PIL import Image
 from wordcloud import WordCloud
 
 import multidict as multidict
-import numpy as np
 import re
 import matplotlib.pyplot as plt
+
 
 def make_mood_image (name, rgb):
     if isinstance(rgb,list):
@@ -15,8 +14,6 @@ def make_mood_image (name, rgb):
     else:
         return 1
 
-
-# https://github.com/amueller/word_cloud/blob/master/examples/frequency.py
 # for word cloud
 def getFrequencyDictForText(sentence):
     fullTermsDict = multidict.MultiDict()

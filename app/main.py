@@ -51,6 +51,14 @@ def create_app(testing: bool = True):
         username = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])
         # Get user's mood image to display
         user_image_path = "static/mood_images/" + db.execute("SELECT path_to_img FROM users WHERE id = ?", session["user_id"])[0]["path_to_img"] + ".png"
+
+        # Get user's path to their word cloud if it exists, perform a try/except for Nontypes
+        wc_path_to = ""
+        try:
+            wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"][4::]
+        except:
+            pass
+
         # Get user moods
         moods = db.execute("SELECT rating, date FROM moods WHERE user_id = ?", session["user_id"])
         # Reverse list object to put most recently logged on top
@@ -61,7 +69,13 @@ def create_app(testing: bool = True):
         # Get a quote to put on user's homepage
         inspirational_quote = quote()
 
-        return render_template("index.html", image_path=user_image_path, username=username[0]["username"], moods=reverse_moods, rgb=config.RGB_SCHEME_MAP, quote_text=inspirational_quote['text'], quote_author=inspirational_quote['author'])
+        return render_template("index.html",\
+            image_path=user_image_path,\
+            username=username[0]["username"],\
+            moods=reverse_moods, rgb=config.RGB_SCHEME_MAP,\
+            quote_text=inspirational_quote['text'],\
+            quote_author=inspirational_quote['author'],\
+            path_to_wc=wc_path_to)
 
     @app.route("/log_mood", methods=["GET","POST"])
     @login_required
@@ -110,18 +124,20 @@ def create_app(testing: bool = True):
                 # users average feeling
                 average_feels = int(db.execute("SELECT avg(rating) AS average FROM moods WHERE user_id = ?", session["user_id"])[0]["average"])
 
-                # update the image for the user's mood which data will be used as a wordcloud for all_moods.html
-                wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"]
-                if not wc_path_to:
-                    wc_path_to = "static/word_maps/" + secrets.token_hex(16) + ".png"
-                else:
-                    wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"]
-
                 # Get user data to turn their words into a word cloud
                 user_wc_data = db.execute("SELECT moods.rating AS rating, mood_descriptions.description AS description FROM moods INNER JOIN mood_descriptions ON mood_descriptions.fmood_id = moods.mood_id WHERE moods.user_id = ?;", session["user_id"])
+                # update the image for the user's mood which data will be used as a wordcloud.
+                wc_path_to = db.execute("SELECT path_to_wc FROM users WHERE id = ?", session["user_id"])[0]["path_to_wc"]
+                # if the path is None update the user database with path to their word cloud and create wordcloud with new file
+                if wc_path_to == None:
+                    wc_path_to = "app/static/word_maps/" + secrets.token_hex(16)
+                    db.execute("UPDATE users SET path_to_wc = ? WHERE id = ?", wc_path_to, session["user_id"])
+                    wordC(wc_path_to, user_wc_data)
+                else:
+                    # Overwrite existing file
+                    wordC(wc_path_to, user_wc_data)
 
                 moodI(user_image_path, rgb=config.RGB_SCHEME_MAP[average_feels])
-                wordC(wc_path_to, user_wc_data)
 
                 return redirect("log_mood")
 
