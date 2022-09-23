@@ -131,9 +131,3 @@ dmypy.json
 # testing db and cookies
 flask_session
 test_data.db
-
-# image files
-*mood_images
-*word_maps
-!mood_images/.gitkeep
-!word_maps/.gitkeep
