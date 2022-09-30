@@ -7,7 +7,7 @@ def convert_to_regexp(pattern):
     special_characters.remove('*')
 
     safe_pattern = ''.join(['\\' + c if c in special_characters else c for c in pattern ])
-
+    
     return safe_pattern.replace('*', '\\w+')
     
 def apology(message, code=400):

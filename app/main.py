@@ -100,8 +100,8 @@ def log_mood():
             emot_description = request.form.get("emot_description")
             r_pattern = convert_to_regexp(emot_description)
             # If there is a space, digit or the escape character '\' it is an invalid input
-            regex = re.search("[\d\s\\\]", r_pattern)
-            if regex:
+            # also they cannot input a word that is longer than 50 characters
+            if r_pattern.isalpha() == False or len(emot_description) > 25:
                 flash("Only single word descriptions of your mood are allowed!")
                 return redirect("/log_mood")
             
@@ -192,18 +192,20 @@ def logout():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    illegal_chars = "()=*-\\\'\".;:/\{\}#"
+    illegal_chars = "()=*-\\\'\".;:/\{\}# "
     """Register user"""
     # If user registers VIA POST
     if request.method == "POST":
         username, password, confirmation = request.form.get(
             "username"), request.form.get("password"), request.form.get("confirmation")
          # Only allow certain characters for username, sanitize user input
-         # TODO implement this with sre_parse module instead
+        
+        if len(username) > 10:
+            return apology("Your chosen username should not be longer than 10 characters")
         for i in illegal_chars:
             for c in username:
                 if i == c:
-                    return apology(f"These Characters are not allowed! {illegal_chars}")
+                    return apology(f"Character's not allowed! {illegal_chars}")
         # Check if the password matches and if the user exits.
         if password == confirmation:
             user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
