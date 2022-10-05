@@ -1,5 +1,4 @@
 # Cofigurations for limits / constants throughout the web application
-
 # This is one day in seconds
 LOG_LIMIT = 86400
 

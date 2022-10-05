@@ -1,20 +1,16 @@
 import requests
-import os
-import signal
-import subprocess
 
 def test_endpoints():
-    # Open a test process using localhost to test the endpoints
-    open_test = subprocess.Popen(["flask", "run --debug -h localhost -p 5550"],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE,
-                               shell=True)
+    # Open a test process using localhost to test the endpoints, that they redirect to login
+    testing_port = "http://127.0.0.1:5000/"
+    end_points = [ "register", "login", "all_moods", "", "log_mood"]
 
-    stdout, stderr = open_test.communicate()
-    stdout, stderr
-
+    # Store status codes to be checked
+    status_codes = []
     
-    print("flask testing app running on port 5550, pid {}".format(open_test.pid))
-    # Send a signal terminate to all process groups and close the testing
+    for r in end_points:
+        print("checking {}".format(testing_port + r))
+        status_codes.append(requests.get(testing_port + r).history)
     
-test_endpoints()
+    status_string = str(status_codes)
+    assert status_string == "[[], [], [<Response [302]>], [<Response [302]>], [<Response [302]>]]"
