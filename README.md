@@ -1,3 +1,5 @@
-Project for CS50 course
+# Anonymous Mood Board
+## Project for CS50 2022
 
-AIM: This is an anonymous mood board! Every day users get to rate their day from 1 to 10, as well as provide a few words to describe the reason why. This provides data to be interpreted and gives the user feedback on not only how they view their own feelings but it also gives some comparative analysis with other users and seasonal changes. It will also show motivational quotes.
+### Introduction
+The aim for this project was to create a web application which logged user data regarding their emotions on a scale from 1 - 10 (with 1 being the lowest) and provide an anonymous comparison with all other users on the platform through the display of informative charts. It also provides a 'word cloud' generator which shows the user a generalization of all of the words they used to describe their choice. Users then get to decide what the scale means for themselves. The project draws upon concepts and tools learnt through Harvard's [CS50 course](https://cs50.harvard.edu/x/2022/project/).
