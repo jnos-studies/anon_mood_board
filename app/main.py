@@ -1,7 +1,5 @@
 import os
 import secrets
-# TODO implement request limiter before publishing!
-# https://medium.com/analytics-vidhya/how-to-rate-limit-routes-in-flask-61c6c791961b
 from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
