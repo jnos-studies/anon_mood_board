@@ -1,8 +1,14 @@
 import requests
+from dotenv import load_dotenv
+import os
 
 def test_endpoints():
+    # load environment variables
+    load_dotenv()
+    
     # Open a test process using localhost to test the endpoints, that they redirect to login
-    testing_port = "http://127.0.0.1:5000/"
+    PORT = os.environ.get("TEST_PORT")
+    testing_port = f"http://127.0.0.1:{PORT}/"
     end_points = [ "register", "login", "all_moods", "", "log_mood"]
 
     # Store status codes to be checked
