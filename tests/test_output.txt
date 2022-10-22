@@ -6,4 +6,4 @@ collected 2 items
 tests/test_character_escaping.py .                                       [ 50%]
 tests/test_endpoints.py .                                                [100%]
 
-============================== 2 passed in 0.17s ===============================
+============================== 2 passed in 0.16s ===============================
