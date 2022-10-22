@@ -375,8 +375,60 @@ These html files only require a summary of what they are and what they do.
 This section will detail choices for handling data in the back end and what happens at specific endpoints.
 
 ##### @app.after_request
+Sets the program to not cache any cookies that come from http responses.
+
+```
+def after_request(response):
+        # Ensure responses are not cached
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Expires"] = 0
+        response.headers["Pragma"] = "no-cache"
+
+        return response
+```
 ##### @app.route("/")
+This endpoint accesses user information from the database and pulls information that was created during the registration process. It gathers the file paths to both the user's mood image and word cloud, as well as all of the user's logged moods and renders them in a html table. It also pulls a quote using the free_api module to diplay on the page, it then renders all of this information to the index.html page.
+```
+  return render_template("index.html",\
+            image_path=user_image_path,\
+            username=username[0]["username"],\
+            moods=reverse_moods, rgb=config.RGB_SCHEME_MAP,\
+            quote_text=inspirational_quote['text'],\
+            quote_author=inspirational_quote['author'],\
+            path_to_wc=wc_path_to)
+```
+
 ##### @app.route("/log_mood")
+Gets information from the database to render things like the number of moods the user has logged already. It also checks that the most recent user log has not exceeded 2 the daily limit. It uses the `LOG_LIMIT` environment variable and compares the last most logged mood with the most recent date. The difference between the values within the `timedeltas` list cannot exceed the limit.
+
+```
+ # For checking the log limit, reject request if user exceeds their daily limit
+        current_date = date.now()
+        limit = config.LOG_LIMIT
+        timedeltas = ""
+        # Limit is defined in seconds for accuracy. Check that the last two logs are within limit, if number of logs is less than 2, timedelta equals the limit, allowing log of moods
+        if num_logged_moods >= 2:
+            timedeltas = [(current_date - date.strptime(moods[-2:][0]["date"],"%Y-%m-%d %H:%M:%S")).total_seconds(), (current_date - date.strptime(moods[-2:][1]["date"],"%Y-%m-%d %H:%M:%S")).total_seconds()]
+        else:
+            timedeltas = [limit, limit]
+    
+```
+In the subsequent post request to the database it compares the timedeltase,
+```
+if timedeltas[0] < limit and timedeltas[1] < limit:
+                next_log = round(limit - timedeltas[1])
+                flash("You can only log 2 moods per day! Time until next available log is {} seconds, {} minutes, or {} hours!!".format(next_log, round(next_log / 60, 2), round((next_log / 60) / 60), 2))
+```
+If the user logging has not exceeded the log limit it then updates the database, and overwrites the users passed mood image and word cloud to reflect the most current data. It takes user input from the radio buttons and the text input as data sent through the POST request. Text input is sanitized with the `convert_to_regex` function which converts the text input into a regular expression that will produce illegal characters if the user has used any. Text is required to be purely alphabetic and without spaces.
+
+```
+if r_pattern.isalpha() == False or len(emot_description) > 25:
+                    flash("Only single word descriptions of your mood are allowed!")
+                    return redirect("/log_mood")
+```
+
+A ***vulnerability*** was fixed by upgrading pip packages. It was the [CWE-1333](https://cwe.mitre.org/data/definitions/1333.html) vulnerability which would allow a person to perform a ReDos attack due to the fact that text which is produced with the `convert_to_regex` do not use efficient regular expression complexity. The vulnerability is moderate because it limits the length of the word to 25 characters. This could still cause a problem if there is high traffic. However after updating pip packages dependabot has not flagged any more vulnerabilities. Any publishable versions of this project will use the lookahead method for limiting this form of attack to zero. The problem code is on line 107 in `main.py`.
+
 ##### @app.route("/all_moods")
 ##### @app.route("/login")
 ##### @app.route("/logout")
