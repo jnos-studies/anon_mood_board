@@ -217,6 +217,14 @@ def create_app(test=bool):
                 user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
                 # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric characters
                 # using regex for password validation, taken from https://uibakery.io/regex-library/password-regex-python
+                """
+                    Has minimum 8 characters in length. Adjust it by modifying {8,}
+                    At least one uppercase English letter. You can remove this condition by removing (?=.*?[A-Z])
+                    At least one lowercase English letter.  You can remove this condition by removing (?=.*?[a-z])
+                    At least one digit. You can remove this condition by removing (?=.*?[0-9])
+                    At least one special character,  You can remove this condition by removing (?=.*?[#?!@$%^&*-])
+                """
+                
                 if len(password) < 8 and len(re.findall("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password)) > 1:
                     return apology("Password must contain at least 8 characters and 4 nonalphanumeric character!")
                 if len(user_exists) == 0:
