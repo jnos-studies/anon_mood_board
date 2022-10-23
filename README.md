@@ -465,7 +465,7 @@ A simple registration, it will handle post requests which checks that the userna
 It then inserts data sent by the post request into the database and creates the new user's mood image which defaults to the lowest value in the `RGB_SCHEME` environment variable.
 
 ```
- if request.method == "POST":
+if request.method == "POST":
             username, password, confirmation = request.form.get(
                 "username"), request.form.get("password"), request.form.get("confirmation")
              # Only allow certain characters for username, sanitize user input
@@ -480,7 +480,16 @@ It then inserts data sent by the post request into the database and creates the 
             if password == confirmation:
                 user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
                 # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric characters
-                if len(password) < 8 and len(re.findall("\W+", password)) < 4:
+                # using regex for password validation, taken from https://uibakery.io/regex-library/password-regex-python
+                """
+                    Has minimum 8 characters in length. Adjust it by modifying {8,}
+                    At least one uppercase English letter. You can remove this condition by removing (?=.*?[A-Z])
+                    At least one lowercase English letter.  You can remove this condition by removing (?=.*?[a-z])
+                    At least one digit. You can remove this condition by removing (?=.*?[0-9])
+                    At least one special character,  You can remove this condition by removing (?=.*?[#?!@$%^&*-])
+                """
+                
+                if len(password) < 8 and len(re.findall("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password)) > 1:
                     return apology("Password must contain at least 8 characters and 4 nonalphanumeric character!")
                 if len(user_exists) == 0:
                     image_path = secrets.token_hex(16)
