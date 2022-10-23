@@ -422,7 +422,7 @@ if timedeltas[0] < limit and timedeltas[1] < limit:
 If the user logging has not exceeded the log limit it then updates the database, and overwrites the users passed mood image and word cloud to reflect the most current data. It takes user input from the radio buttons and the text input as data sent through the POST request. Text input is sanitized with the `convert_to_regex` function which converts the text input into a regular expression that will produce illegal characters if the user has used any. Text is required to be purely alphabetic and without spaces.
 
 ```
-if r_pattern.isalpha() == False or len(emot_description) > 25:
+if r_pattern.isalpha() == False or len(emot_description) > 15:
                     flash("Only single word descriptions of your mood are allowed!")
                     return redirect("/log_mood")
 ```
@@ -460,7 +460,7 @@ A simple single factor sign in which checks that a user exists and that their pa
 Logs the user out by clearing their associated cookie with `session.clear()`.
 
 ##### @app.route("/register")
-A simple registration, it will handle post requests which checks that the username entered does not contain any illegal characters and is below the length of 10. It also enforces password restrictions to be longer than 8 characters and contain at lear 4 nonalphanumeric characters.
+A simple registration, it will handle post requests which checks that the username entered does not contain any illegal characters and is below the length of 10. It also enforces password restrictions by using regular expressions for password validation,
 
 It then inserts data sent by the post request into the database and creates the new user's mood image which defaults to the lowest value in the `RGB_SCHEME` environment variable.
 
@@ -479,7 +479,6 @@ if request.method == "POST":
             # Check if the password matches and if the user exits.
             if password == confirmation:
                 user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
-                # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric characters
                 # using regex for password validation, taken from https://uibakery.io/regex-library/password-regex-python
                 """
                     Has minimum 8 characters in length. Adjust it by modifying {8,}
@@ -488,9 +487,15 @@ if request.method == "POST":
                     At least one digit. You can remove this condition by removing (?=.*?[0-9])
                     At least one special character,  You can remove this condition by removing (?=.*?[#?!@$%^&*-])
                 """
-                
-                if len(password) < 8 and len(re.findall("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password)) > 1:
-                    return apology("Password is invalid!")
+                password_validation = (re.search("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$", password) == None)
+                print(password_validation)
+                if password_validation == True:
+                    flash("""Password must be a minimum of 8 characters in length,
+Have at least one uppercase English letter,
+have least one lowercase English letter,
+and have at least one digit.""")
+                    return redirect("/register")
+
                 if len(user_exists) == 0:
                     image_path = secrets.token_hex(16)
                     moodI(image_path, rgb=[57, 59, 87])
@@ -500,4 +505,5 @@ if request.method == "POST":
                     return apology("User already exists!")
             else:
                 return apology("Passwords do not match!")
+                   
 ```

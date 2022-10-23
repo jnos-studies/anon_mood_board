@@ -11,9 +11,9 @@ install_cont() {
         export FLASK_APP="app.main:create_app(test=True)"
         # Only use these commands if testing requires a full swipe of image data
         # Both the test and production applications will use the same folder
-        # rm -r app/static/mood_images/*
-        # rm -r app/static/word_maps/*
-        # rm -r flask_session
+         rm -r app/static/mood_images/*
+         rm -r app/static/word_maps/*
+         rm -r flask_session
 
         # Remove the testing database and create a new one.
         rm -f test_data.db

@@ -107,7 +107,7 @@ def create_app(test=bool):
                 r_pattern = convert_to_regexp(emot_description)
                 # If there is a space, digit or the escape character '\' it is an invalid input
                 # also they cannot input a word that is longer than 50 characters
-                if r_pattern.isalpha() == False or len(emot_description) > 25:
+                if r_pattern.isalpha() == False or len(emot_description) > 15:
                     flash("Only single word descriptions of your mood are allowed!")
                     return redirect("/log_mood")
 
@@ -215,7 +215,6 @@ def create_app(test=bool):
             # Check if the password matches and if the user exits.
             if password == confirmation:
                 user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
-                # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric characters
                 # using regex for password validation, taken from https://uibakery.io/regex-library/password-regex-python
                 """
                     Has minimum 8 characters in length. Adjust it by modifying {8,}
@@ -224,9 +223,15 @@ def create_app(test=bool):
                     At least one digit. You can remove this condition by removing (?=.*?[0-9])
                     At least one special character,  You can remove this condition by removing (?=.*?[#?!@$%^&*-])
                 """
-                
-                if len(password) < 8 and len(re.findall("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password)) > 1:
-                    return apology("Password is invalid!")
+                password_validation = (re.search("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$", password) == None)
+                print(password_validation)
+                if password_validation == True:
+                    flash("""Password must be a minimum of 8 characters in length,
+Have at least one uppercase English letter,
+have least one lowercase English letter,
+and have at least one digit.""")
+                    return redirect("/register")
+
                 if len(user_exists) == 0:
                     image_path = secrets.token_hex(16)
                     moodI(image_path, rgb=[57, 59, 87])
