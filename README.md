@@ -427,9 +427,68 @@ if r_pattern.isalpha() == False or len(emot_description) > 25:
                     return redirect("/log_mood")
 ```
 
-A ***vulnerability*** was fixed by upgrading pip packages. It was the [CWE-1333](https://cwe.mitre.org/data/definitions/1333.html) vulnerability which would allow a person to perform a ReDos attack due to the fact that text which is produced with the `convert_to_regex` do not use efficient regular expression complexity. The vulnerability is moderate because it limits the length of the word to 25 characters. This could still cause a problem if there is high traffic. However after updating pip packages dependabot has not flagged any more vulnerabilities. Any publishable versions of this project will use the lookahead method for limiting this form of attack to zero. The problem code is on line 107 in `main.py`.
-
 ##### @app.route("/all_moods")
+Gathers information from the database and performs calculations which compare the user's most picked and averaged moods and compares them with others. It renders the values needed for the chart.js library to render charts and graphics from the script written in [all_moods.html](/app/templates/all_moods.html).
+
+It will only render the average user data compared to what the user has picked themselves, ie: compare how many people picked the number 10 as compared to the user on a particular day.
+
+```
+daily_avg_user = db.execute("SELECT strftime('%m-%d-%Y', date) AS fdate, COUNT(*) AS count, AVG(rating) as average_rating FROM moods WHERE user_id = ? GROUP BY fdate;", session["user_id"])
+        dau_x = [a["fdate"] for a in daily_avg_user]
+        dau_y = [a["average_rating"] for a in daily_avg_user]
+        # Get the averate user ratings for every user which logged a mood the same day as the logged user.
+        daily_avg_all = db.execute("SELECT * FROM daily_average WHERE fdate IN (SELECT strftime('%m-%d-%Y', date) AS fdate FROM moods WHERE user_id = ? GROUP BY fdate)", session["user_id"])
+        daa_x = [a["fdate"] for a in daily_avg_all if a["fdate"]]
+        daa_y = [a["average_rating"] for a in daily_avg_all]
+```
+
 ##### @app.route("/login")
+A simple single factor sign in which checks that a user exists and that their password matches with the hashed values in the database.
+
+```
+# Query database for username
+            rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+            # Ensure username exists and password is correct
+            if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")) or not len(request.form.get("username")) < 15:
+                return apology("Invalid username and/or password!", 403)
+
+            session["user_id"] = rows[0]["id"]
+            flash("Logged in successfully.")
+```
+
 ##### @app.route("/logout")
+Logs the user out by clearing their associated cookie with `session.clear()`.
+
 ##### @app.route("/register")
+A simple registration, it will handle post requests which checks that the username entered does not contain any illegal characters and is below the length of 10. It also enforces password restrictions to be longer than 8 characters and contain at lear 4 nonalphanumeric characters.
+
+It then inserts data sent by the post request into the database and creates the new user's mood image which defaults to the lowest value in the `RGB_SCHEME` environment variable.
+
+```
+ if request.method == "POST":
+            username, password, confirmation = request.form.get(
+                "username"), request.form.get("password"), request.form.get("confirmation")
+             # Only allow certain characters for username, sanitize user input
+
+            if len(username) > 10:
+                return apology("Your chosen username should not be longer than 10 characters")
+            for i in illegal_chars:
+                for c in username:
+                    if i == c:
+                        return apology(f"Character's not allowed! {illegal_chars}")
+            # Check if the password matches and if the user exits.
+            if password == confirmation:
+                user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
+                # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric characters
+                if len(password) < 8 and len(re.findall("\W+", password)) < 4:
+                    return apology("Password must contain at least 8 characters and 4 nonalphanumeric character!")
+                if len(user_exists) == 0:
+                    image_path = secrets.token_hex(16)
+                    moodI(image_path, rgb=[57, 59, 87])
+                    db.execute("INSERT INTO users (username, hash, path_to_img) VALUES(?, ?, ?)", username, generate_password_hash(password), image_path)
+                    return redirect("/login")
+                else:
+                    return apology("User already exists!")
+            else:
+                return apology("Passwords do not match!")
+```
