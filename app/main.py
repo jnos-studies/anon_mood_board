@@ -226,7 +226,7 @@ def create_app(test=bool):
                 """
                 
                 if len(password) < 8 and len(re.findall("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password)) > 1:
-                    return apology("Password must contain at least 8 characters and 4 nonalphanumeric character!")
+                    return apology("Password is invalid!")
                 if len(user_exists) == 0:
                     image_path = secrets.token_hex(16)
                     moodI(image_path, rgb=[57, 59, 87])
