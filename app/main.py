@@ -216,8 +216,8 @@ def create_app(test=bool):
             if password == confirmation:
                 user_exists = db.execute("SELECT * FROM users WHERE username = ?;", username)
                 # Force users to have a password length longer than 8 characters and have at least 4 nonalphanumeric characters
-                # ensure to use lookaround method for regex expression to not allow ReDos attacks
-                if len(password) < 8 and len(re.findall("(?=(\W+))\1?", password)) < 4 and len(password) < 50:
+                # using regex for password validation, taken from https://uibakery.io/regex-library/password-regex-python
+                if len(password) < 8 and len(re.findall("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", password)) > 1:
                     return apology("Password must contain at least 8 characters and 4 nonalphanumeric character!")
                 if len(user_exists) == 0:
                     image_path = secrets.token_hex(16)
